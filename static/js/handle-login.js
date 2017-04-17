@@ -2,19 +2,16 @@
 //    $('form').submit(function(e) {
 //        e.preventDefault();
 //
-//        var vendor = $('[name=vendor]');
-//        var password = $('[name=password]');
+//        var invoice = $('[name=invoice]');
 //
-//        var loginData = {
-//            vendor: vendor.val(),
-//            password : password.val()
+//        var invData = {
+//            invoice: invoice.val(),
 //        };
 //
-//        $.post('/home', loginData, function(result) {
-//            alert(result);
+//        $.post('/invoices', invData, function(result) {
+////            alert(result);
 //        });
 //
-//        vendor.val('');
-//        password.val('');
+//        invoice.val('');
 //    });
 //});
