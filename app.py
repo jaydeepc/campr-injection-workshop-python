@@ -1,6 +1,6 @@
 import os
 import webbrowser
-
+from flask import jsonify
 import werkzeug
 from flask import Flask, render_template, request, json, session, send_file, g, url_for
 from flaskext.mysql import MySQL
@@ -13,7 +13,7 @@ mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = ''
 app.config['MYSQL_DATABASE_DB'] = 'Injection'
-app.config['MYSQL_DATABASE_HOST'] = 'db_server'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 app.config['MYSQL_PORT'] = '3306'
 mysql.init_app(app)
 
@@ -78,10 +78,27 @@ def invoices():
     return render_template('invoice.html')
 
 
+@app.route("/allinvoices", methods=['GET'])
+def allinvoices():
+
+    list_text = []
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    all_data = fetch_invoices(conn, cursor)
+
+    conn.close()
+
+    for data in all_data:
+        list_text.append(data[0])
+
+    return jsonify(text=list_text)
+
+
 @app.route("/invoices", methods=['POST'])
 def insert_invoices():
 
-    __invoice = request.form["invoice"]
+    __invoice = request.form["txt_invoice"]
 
     conn = mysql.connect()
     cursor = conn.cursor()

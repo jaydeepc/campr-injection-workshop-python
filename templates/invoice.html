@@ -35,6 +35,35 @@
             border-top: 1px solid #fff;
         }
     </style>
+    <script>
+    $(function() {
+        function renderInvoices() {
+            $.get('/allinvoices', function(invoices) {
+                $('#invoices').html('');
+                invoices["text"].forEach(function(invoice) {
+                    $('#invoices').append($('<hr>'));
+                    $('#invoices').append($('<p>'));
+                    $('#invoices p').last().html(invoice);
+                });
+            });
+        };
+
+      $('#in_submit').click(function() {
+        invoice = $('[name=invoice]').val();
+        $.ajax({
+          type: 'POST',
+          data: 'txt_invoice='+invoice,
+          success: function(){
+            $("#id_inv").trigger('reset')
+          },
+          url: '/invoices',
+          cache:false
+        });
+        renderInvoices();
+      });
+    });
+
+</script>
 </head>
 
 <body>
@@ -43,9 +72,9 @@
 
     <h1>Submit Invoice</h1>
 
-    <form action="/invoices" method="POST">
+    <form id="id_inv">
         <textarea name="invoice"></textarea>
-        <button type="submit" class="btn">Submit Invoice</button>
+        <button type="button" id="in_submit" class="btn">Submit Invoice</button>
     </form>
 
     <br>
