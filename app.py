@@ -1,7 +1,7 @@
 import os
 import webbrowser
 from flask import jsonify
-import werkzeug
+import json
 from flask import Flask, render_template, request, json, session, send_file, g, url_for
 from flaskext.mysql import MySQL
 
@@ -77,6 +77,45 @@ def invoices():
 
     return render_template('invoice.html')
 
+@app.route("/index")
+def index_home():
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    return render_template('index.html')
+
+
+@app.route("/index/home", methods=['POST'])
+def index_login():
+
+    _username = request.form["username"]
+    _password = request.form['password']
+
+    if _username and _password:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        query = "select vendor_name from users where vendor_name='{0}' and password='{1}'".format(_username,
+                                                                                                          _password)
+        try:
+            cursor.execute(query)
+            data = cursor.fetchone()
+        except Exception as ex:
+            raise Exception(query, ex)
+
+        all_users = fetch_users(conn, cursor)
+        conn.close()
+
+
+        if data is not None:
+            return render_template('admin.html', data=data, users=all_users, auth="right")
+        else:
+            data = "please check your vendor and password combination"
+            return render_template('login.html', data=[data], users=all_users, auth="wrong")
+
+    else:
+        return json.dumps({'html': '<span>Enter the required fields</span>'})
+
 
 @app.route("/allinvoices", methods=['GET'])
 def allinvoices():
@@ -125,6 +164,26 @@ def fetch_invoices(conn, cursor):
         conn.rollback()
     return all_data
 
+
+@app.route("/vendor/delete", methods=['POST'])
+def vendor_delete():
+
+    __user = request.form["vendor"]
+    print (__user)
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    query = "delete from users where vendor_name = ('{0}');".format(__user)
+    try:
+        cursor.execute(query)
+        conn.commit()
+    except:
+        conn.rollback()
+
+    conn.close()
+
+    return json.dumps({"comment": "user is deleted"})
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
